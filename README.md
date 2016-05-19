@@ -8,4 +8,7 @@ Predicts binding of 9- to 12-mer peptides to MHC class I molecules using the [st
 devtools::install_github("jtextor/epitope-prediction")
 `
 
+# License
+
+This package is licensed under a CC BY-NC-SA 4.0 license. This means it is free for use *for non-commercial purposes* (such as academic research). Companies interested in using this package should contact [Bjoern Peters](http://www.liai.org/pages/faculty-peters). 
 
