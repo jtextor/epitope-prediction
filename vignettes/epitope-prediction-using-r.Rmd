@@ -1,0 +1,224 @@
+---
+title: "Epitope Prediction Using R"
+author: "Johannes Textor"
+date: "`r Sys.Date()`"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Peptide-MHC Binding Prediction Using R}
+  \usepackage[utf8]{inputenc} 
+output:
+  knitr:::html_vignette:
+    toc: yes
+---
+
+```{r, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(comment = "")
+```
+
+## Epitope Prediction Using R
+
+The package `EpitopePrediction` implements the stabilized matrix method (SMM), 
+developed by Kim, Peters and 
+colleagues [@kim09], to predict the binding strength between peptides and major 
+histocompatibility
+complex (MHC) class I molecules. This is an essential step in vaccine design and is also
+used for many other purposes in computational immunology.
+
+SMM is a simple and fast method for peptide-MHC binding, but is slightly less accurate
+than other methods like NetMHCpan. Future versions of this package may implement more
+binding prediction methods.
+
+## Getting started
+
+As usual, load the package first.
+
+```{r}
+library(EpitopePrediction)
+```
+
+To predict which 9-mers from the CORE protein of the hepatitis C virus would bind to the
+HLA-A-02:01 molecule, we can use:
+
+```{r}
+## This is the CORE protein from the Hepatitis C virus reference sequence available
+## at https://hcv.lanl.gov/content/sequence/LOCATE/locate.html
+hcv.core <- paste("MSTNPKPQRKTKRNTNRRPQDVKFPGGGQIVGGVYLLPRRGPRLGVRATRKTSERSQPRGRR",
+	"QPIPKARRPEGRTWAQPGYPWPLYGNEGCGWAGWLLSPRGSRPSWGPTDPRRRSRNLGKVIDTLTCGFADLMGYIP",
+	"LVGAPLGGAARALAHGVRVLEDGVNYATGNLPGCSFSIFLLALLSCLTVPASA",sep="")
+binders( hcv.core, "HLA-A-02:01", 9 )
+```
+
+The number of results shown can be controlled by using the 
+`ic50.threshold` or `quantile.threshold` parameters.
+
+```{r}
+## All peptides with a predicted IC50 of <100
+binders( hcv.core, "HLA-A-02:01", 9, ic50.threshold=100 )
+```
+
+```{r}
+## The top 2% binders from the protein
+binders( hcv.core, "HLA-A-02:01", 9, quantile.threshold=0.02 )
+```
+
+The `binders` function works by calling a lower-level function `smm` for all peptides
+in the given protein. Of course you can also call that function directly to predict 
+binding for specific peptides.
+
+```{r}
+## Predict IC50 binding values for two famous peptides
+smm( c("SLYNTVATL","SYFPEITHI"), "HLA-A-02:01" )
+```
+
+The nomenclature around MHC molecules is not rigorously standardized, and various formats
+are in use to name MHC molecules at 4-digit resolution. The package tries to be as 
+permissive as possible in allowing different notations, for example 
+`"HLA-A0201"`, `"HLA-A-0201"`, `"HLA-A*0201"`, and `"HLA-A*02:01` will all work.
+
+## Supported MHC molecules and peptide lengths
+
+Currently, the package supports several MHC molecules from four different species -- 
+humans, mice, rhesus macaques, and chimpanzees. 
+To show a list of currently supported MHC molecules and peptide
+lengths, use the following R command:
+
+```{r}
+mhcs <- supportedMHCs()
+levels( mhcs$mhc )
+```
+
+For all of these MHC molecules, binding strengths can be predicted at least for peptides of
+length 9. For some of the more frequent molecules, also other peptide lengths are 
+supported:
+
+```{r}
+mhc.table <- table( mhcs$mhc )
+mhc.table[mhc.table > 1]
+```
+
+For example, these are the peptide lengths currently supported for HLA-A-02:01.
+
+```{r}
+mhcs$l[mhcs$mhc=='HLA-A-02:01']
+```
+
+This reflects a general picture: Most often, the anchor positions are the C-terminus and
+the second position or a position next to it.
+
+```{r}
+hist( sapply( supportedMHCs(9)$mhc, anchorPositions ), breaks=seq(0.5,9.5,1), 
+	main="Anchor positions for 9-mers", xlab="Position" )
+```
+
+## Accessing the SMM matrices
+
+A great advantage of the SMM method above other method is that the prediction is easy to
+understand -- it is based on simple scoring matrices, one matrix per combination of MHC
+and peptide length. These matrices can be directly accessed.
+
+```{r}
+## load prediction matrix for HLA-A-02:01 9-mers
+M <- smmMatrix( "HLA-A-02:01", 9 )$M
+```
+
+We can interrogate the matrices to learn about the binding preferences of MHC molecules.
+Keep in mind that a low IC50 value means good binding, hence negative numbers indicate
+binding preferences and positive numbers indicate incompatible amino acids.
+
+```{r}
+## How well is Valine liked by HLA-A02:01 at each position?
+M["V",]
+```
+
+```{r}
+## Which amino acid is most preferred at the C-terminal position?
+names( which.min( M[,9] ) )
+```
+
+The package provides an auxiliary function to estimate the structural anchor positions of
+the MHC molecules, which are the positions that "grab" the peptides, from the variance
+in matrix columns.
+
+```{r}
+## Which are the anchor positions for HLA-B-27:05?
+anchorPositions( "HLA-B-27:05" )
+```
+
+
+
+```{r}
+
+
+```
+
+## Generating binding motifs
+
+A common way to visualize the binding preferences of an MHC molecule is a so-called
+_binding motif_ [@lund05]. The package provides a function to generate such binding 
+motifs from the
+SMM matrices. In a binding motif, each column has the height of the information content
+at that position, which is log(20)-H where H is the entropy at that position. Each column
+is subdivided into blocks that stand for the amino acids, and each amino acid has a height
+proportional to its contribution to a low IC50 value at that position.
+
+
+```{r}
+## Compare binding motifs of HLA-A02 at all supported peptide lengths
+par( mfrow=c(2,2) )
+for( l in 8:11 ){
+   plotBindingMotif( "HLA-A-02:01", l )
+}
+```
+
+
+## References
+
+---
+references:
+- id: lund05
+  type: book
+  author:
+  - family: Lund
+    given: Ole
+  - family: Keşmir
+    given: Can
+  - family: Nielsen
+    given: Morten
+  - family: Lundegaard
+    given: Claus
+  - family: Brunak
+    given: Søren
+  issued:
+  - year: '2005'
+  title: Immunological Bioinformatics
+  publisher: MIT Press
+  publisher-place: Cambridge, MA, USA
+
+- id: kim09
+  type: article-journal
+  author:
+  - family: Kim
+    given: Yohan
+  - family: Sidney
+    given: John
+  - family: Pinilla
+    given: Clemencia
+  - family: Sette
+    given: Alessandro
+  - family: Peters
+    given: Bjoern
+  issued:
+  - year: '2009'
+  title: Derivation of an amino acid similarity matrix for peptide:MHC binding and
+    its application as a Bayesian prior
+  container-title: BMC Bioinformatics
+  page: '394'
+  volume: '10'
+  URL: http://www.biomedcentral.com/1471-2105/10/394
+...
+
+
+
+
+
+

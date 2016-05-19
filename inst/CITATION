@@ -1,0 +1,19 @@
+citHeader("To cite EpitopePrediction in publications use:")
+
+citEntry(entry = "Article",
+  title        = "Derivation of an amino acid similarity matrix for peptide:{MHC} binding and its application as a {B}ayesian prior",
+  author       = personList(as.person("Yohan Kim"),
+                   as.person("John Sidney"),
+                   as.person("Clemencia Pinilla"),
+                   as.person("Alessandro Sette"),
+                   as.person("Bjoern Peters")),
+  journal      = "BMC Bioinformatics",
+  year         = "2009",
+  volume       = "10",
+  pages        = "394",
+  url          = "http://www.biomedcentral.com/1471-2105/10/394",
+  textVersion  = paste("Kim, Y, Sidney, J, Pinilla, C, Sette, A, Peters, B (2009).",
+  	"Derivation of an amino acid similarity matrix for peptide:MHC binding and its application as a Bayesian prior.", 
+  	"BMC Bioinformatics, 10:394.",
+    "URL http://www.biomedcentral.com/1471-2105/10/394.")
+)
