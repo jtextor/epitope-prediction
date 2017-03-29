@@ -8,19 +8,18 @@ This package is licensed under a CC BY-NC-SA 4.0 license. This means it is free 
 
 # Example
 
-`
-# Install the package
-devtools::install_github("jtextor/epitope-prediction")
 
-# Load the package
-library( EpitopePrediction )
+	# Install the package
+	devtools::install_github("jtextor/epitope-prediction")
 
-# This is the CORE protein from the Hepatitis C virus reference sequence available
-# at https://hcv.lanl.gov/content/sequence/LOCATE/locate.html
-hcv.core <- paste("MSTNPKPQRKTKRNTNRRPQDVKFPGGGQIVGGVYLLPRRGPRLGVRATRKTSERSQPRGRR",
-	"QPIPKARRPEGRTWAQPGYPWPLYGNEGCGWAGWLLSPRGSRPSWGPTDPRRRSRNLGKVIDTLTCGFADLMGYIP",
-	"LVGAPLGGAARALAHGVRVLEDGVNYATGNLPGCSFSIFLLALLSCLTVPASA",sep="")
+	# Load the package
+	library( EpitopePrediction )
 
-# Predict 9-mer binders to human HLA-A02:01
-binders( hcv.core, "HLA-A-02:01", 9 )
-`
+	# This is the CORE protein from the Hepatitis C virus reference sequence available
+	# at https://hcv.lanl.gov/content/sequence/LOCATE/locate.html
+	hcv.core <- paste("MSTNPKPQRKTKRNTNRRPQDVKFPGGGQIVGGVYLLPRRGPRLGVRATRKTSERSQPRGRR",
+		"QPIPKARRPEGRTWAQPGYPWPLYGNEGCGWAGWLLSPRGSRPSWGPTDPRRRSRNLGKVIDTLTCGFADLMGYIP",
+		"LVGAPLGGAARALAHGVRVLEDGVNYATGNLPGCSFSIFLLALLSCLTVPASA",sep="")
+
+	# Predict 9-mer binders to human HLA-A02:01
+	binders( hcv.core, "HLA-A-02:01", 9 )
