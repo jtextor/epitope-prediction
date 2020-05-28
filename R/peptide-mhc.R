@@ -20,7 +20,6 @@ NULL
 #'
 #' @export
 supportedMHCs <- function( l=NULL ){
-	print( getPackageName() )
 	r <- read.table( system.file( "extdata", "model_list.txt", package=getPackageName() ),
 		as.is=TRUE )$V1
 	mhcname <- gsub( '-[0-9][0-9]?$', '', r )
