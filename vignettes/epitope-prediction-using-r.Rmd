@@ -7,7 +7,7 @@ vignette: >
   %\VignetteIndexEntry{Peptide-MHC Binding Prediction Using R}
   \usepackage[utf8]{inputenc} 
 output:
-  pdf_document:
+  knitr:::html_vignette:
     toc: yes
 ---
 
